@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Railway Control System - Tamil Nadu</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+  * {
+    box-sizing: border-box;
+  }
+  body, html {
+    margin: 0; padding: 0;
+    font-family: 'Roboto', sans-serif;
+    height: 100%;
+    background: url('railway background.webp') no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+    overflow-x: hidden;
+  }
+  button {
+    cursor: pointer;
+  }
+  .page-container, .page {
+    position: fixed;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    will-change: opacity;
+  }
+  .page-container.active, .page.active {
+    display: flex;
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 20;
+  }
+  .page-container::before, .page::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0,0,0,0.6);
+    z-index: 0;
+    border-radius: 20px;
+  }
+  .page-container > *, .page > * {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 450px;
+  }
+  /* Landing Page */
+  #main-container h1 {
+    font-size: 3rem;
+    margin-bottom: 50px;
+    font-weight: 700;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
+  }
+  .options-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+  }
+  .option-card {
+    background-color: rgba(255,255,255,0.85);
+    color: #003366;
+    width: 220px;
+    height: 220px;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    user-select: none;
+    border: 3px solid transparent;
+  }
+  .option-card:hover, .option-card:focus {
+    transform: translateY(-15px);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.5);
+    border-color: #0073e6;
+    outline: none;
+  }
+  .option-card img {
+    width: 90px;
+    height: 90px;
+    margin-bottom: 20px;
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+  }
+  .option-card span {
+    font-weight: 700;
+    font-size: 1.6rem;
+  }
+  /* Login Container */
+  #login-container h2 {
+    margin-bottom: 35px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.9);
+  }
+  #login-container {
+    background: rgba(0,0,0,0.6);
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    padding: 50px 35px;
+    color: #fff;
+  }
+  /* Train ID Container */
+  #trainid-container h2 {
+    margin-bottom: 35px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.9);
+  }
+  #trainid-container {
+    background: rgba(0,0,0,0.6);
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    padding: 50px 35px;
+    color: #fff;
+  }
+  /* Train Details Container */
+  #details-container {
+    background: rgba(0,0,0,0.7);
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+    padding: 30px 40px;
+    color: #fff;
+    max-width: 900px;
+    display: none;
+    flex-direction: row;
+    gap: 30px;
+  }
+  #left-details {
+    flex: 1 1 45%;
+    background: rgba(0,0,0,0.7);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #left-details h2 {
+    margin-bottom: 25px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 1px 1px 8px rgba(0,0,0,1);
+  }
+  #train-map-container {
+    width: 100%;
+    height: 300px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    background-color: #001f3f;
+    color: #a0c4ff;
+    font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    margin-bottom: 25px;
+  }
+  #train-map {
+    width: 90%;
+    height: 90%;
+    background-color: #003366;
+    border-radius: 15px;
+    position: relative;
+  }
+  #train-pin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 24px;
+    height: 24px;
+    background-color: #ff6b6b;
+    border-radius: 50%;
+    border: 2px solid #b71c1c;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 12px #ff6b6b;
+  }
+  #train-current-location {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1rem;
+    color: #ff6b6b;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+    font-weight: 900;
+  }
+  #emergency-call-btn {
+    background-color:#d32f2f;
+    box-shadow: 0 6px 20px rgba(211,47,47,0.7);
+    margin-bottom: 15px;
+    width: 100%;
+    padding: 18px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    border-radius: 15px;
+    cursor: pointer;
+    border:none;
+    color:#fff;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  #emergency-call-btn:hover, #emergency-call-btn:focus {
+    background-color: #b71c1c;
+    box-shadow: 0 8px 25px rgba(183,28,28,0.8);
+    outline: none;
+  }
+  /* Logout button moved here below emergency button */
+  #left-details button.secondary {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.85);
+    color: #003366;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    padding: 18px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+    margin-top: 10px;
+  }
+  #left-details button.secondary:hover,
+  #left-details button.secondary:focus {
+    background-color: rgba(255, 255, 255, 1);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    outline: none;
+  }
+  #train-tracking-status {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 20px;
+    box-sizing: border-box;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #a0c4ff;
+    user-select: none;
+    min-height: 120px;
+    box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.2);
+  }
+  #train-tracking-status p {
+    margin: 8px 0;
+  }
+  #right-details {
+    flex: 1 1 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #right-details h2 {
+    margin-bottom: 30px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 1px 1px 8px rgba(0,0,0,1);
+  }
+  #train-image {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 30px;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    animation: float 5s ease-in-out infinite;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0 14px;
+  }
+  th, td {
+    padding: 15px 18px;
+    text-align: left;
+    font-weight: 600;
+    border-radius: 8px;
+  }
+  th {
+    color: #a0c4ff;
+    font-size: 1.1rem;
+    width: 50%;
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.8);
+  }
+  td {
+    background: rgba(255,255,255,0.9);
+    color: #333;
+  }
+   .table-container {
+    max-width: 900px;
+    margin: 30px auto;
+    background: #121a2a;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 123, 255, 0.4);
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  thead {
+    background-color: #003366;
+  }
+
+  thead th {
+    color: #ffffff;
+    font-weight: 700;
+    padding: 14px 20px;
+    text-align: left;
+    border-bottom: 2px solid #0059b3;
+  }
+
+  tbody tr {
+    background-color: #f9fefb;
+    color: #0a0f18;
+    transition: background-color 0.3s ease;
+  }
+
+  tbody tr:nth-child(even) {
+    background-color: #e6f0ff;
+  }
+
+  tbody tr:hover {
+    background-color: #cce0ff;
+  }
+
+  tbody td {
+    padding: 12px 20px;
+    border-bottom: 1px solid #d1d9e6;
+  }
+
+  tbody td:first-child,
+  thead th:first-child {
+    border-top-left-radius: 10px;
+  }
+
+  tbody td:last-child,
+  thead th:last-child {
+    border-top-right-radius: 10px;
+  }
+  button {
+    width: 100%;
+    background-color: #0073e6;
+    color: #fff;
+    border: none;
+    padding: 18px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    border-radius: 15px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0,115,230,0.6);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  button:hover, button:focus {
+    background-color: #005bb5;
+    box-shadow: 0 8px 25px rgba(0,91,181,0.8);
+    outline: none;
+  }
+  .error {
+    color: #ff6b6b;
+    margin-bottom: 25px;
+    font-weight: 700;
+    text-shadow: 0 0 4px rgba(0,0,0,0.6);
+  }
+  button.secondary {
+    background-color: rgba(255,255,255,0.85);
+    color: #003366;
+    margin-top: 20px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  }
+  button.secondary:hover, button.secondary:focus {
+    background-color: rgba(255,255,255,1);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    outline: none;
+  }
+  form input, form select {
+    width: 100%;
+    padding: 16px 18px;
+    margin-bottom: 20px;
+    border-radius: 15px;
+    border: none;
+    font-size: 1.1rem;
+    box-sizing: border-box;
+    background-color: rgba(255,255,255,0.9);
+    color: #333;
+    position: relative;
+    transition: box-shadow 0.3s ease;
+  }
+  form input::placeholder, form select::placeholder {
+    color: #555;
+  }
+  form input:focus, form select:focus {
+    outline: none;
+    box-shadow: 0 0 12px #0073e6;
+    background-color: #fff;
+  }
+  .input-icon {
+    position: relative;
+  }
+  .input-icon img {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+  }
+  form input:focus + img {
+    opacity: 1;
+  }
+  /* Control Room Pages Full Screen */
+  #junction-list-page,
+  #arrival-trains-page,
+  #live-train-status-page,
+  #control-room-url-page,
+  #control-room-menu-page,
+  #train-schedule-page,
+  #reschedule-page,
+  #reschedule-details-page {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    padding: 20px 30px 30px !important;
+    max-width: none !important;
+    box-shadow: none !important;
+    overflow-y: auto;
+    background: rgba(0,31,63,0.85);
+    color: #fff;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    backdrop-filter: brightness(0.7);
+  }
+  #junction-list-page::before,
+  #arrival-trains-page::before,
+  #live-train-status-page::before,
+  #control-room-url-page::before,
+  #control-room-menu-page::before,
+  #train-schedule-page::before,
+  #reschedule-page::before,
+  #reschedule-details-page::before {
+    background-color: rgba(0,0,0,0.7) !important;
+    border-radius: 0 !important;
+  }
+  #junction-list-page > *,
+  #arrival-trains-page > *,
+  #live-train-status-page > *,
+  #control-room-url-page > *,
+  #control-room-menu-page > *,
+  #train-schedule-page > *,
+  #reschedule-page > *,
+  #reschedule-details-page > * {
+    max-width: 100% !important;
+  }
+  /* Control Room Junction List */
+  #junction-list-page h1 {
+    font-weight: 700;
+    font-size: 2.8rem;
+    margin-bottom: 10px;
+    color: #a0c4ff;
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.8);
+  }
+  #junction-login-info {
+    margin-bottom: 25px;
+    padding: 15px;
+    background: rgba(77, 182, 172, 0.15);
+    border-radius: 12px;
+    font-weight: 600;
+    color: #b2dfdb;
+    max-width: 450px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .search-bar {
+    max-width: 600px;
+    margin: 0 auto 30px;
+    display: flex;
+    gap: 10px;
+  }
+  .search-bar input[type="search"] {
+    flex-grow: 1;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: none;
+    font-size: 1.1rem;
+    outline: none;
+    transition: box-shadow 0.3s ease;
+  }
+  .search-bar input[type="search"]:focus {
+    box-shadow: 0 0 12px #0073e6;
+  }
+  .search-bar button {
+    background-color: #0073e6;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-weight: 700;
+    color: #fff;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+  }
+  .search-bar button:hover {
+    background-color: #005bb5;
+  }
+  .junction-list {
+    max-height: 70vh;
+    overflow-y: auto;
+    border-left: 4px solid #4db6ac;
+    padding-left: 25px;
+  }
+  .junction-item {
+    position: relative;
+    padding: 18px 0 18px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #b2dfdb;
+    transition: background-color 0.3s ease;
+  }
+  .junction-item:last-child {
+    border-bottom: none;
+  }
+  .junction-item:hover, .junction-item:focus {
+    background-color: rgba(77, 182, 172, 0.15);
+    outline: none;
+  }
+  .junction-item::before {
+    content: "";
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #4db6ac;
+    border: 3px solid #00796b;
+  }
+
+  /* Arrival trains page */
+  #arrival-trains-page h1 {
+    font-weight: 700;
+    font-size: 2.8rem;
+    margin-bottom: 30px;
+    color: #a0c4ff;
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.8);
+  }
+  .arrivals-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 25px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .arrivals-table th, .arrivals-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #4db6ac;
+    text-align: left;
+  }
+  .arrivals-table th {
+    background-color: #0b0c0d;
+    color: #a0c4ff;
+    font-weight: 700;
+  }
+  .arrivals-table tbody tr:hover, .arrivals-table tbody tr:focus {
+    background-color: rgba(255,107,107,0.15);
+    cursor: pointer;
+    outline: none;
+  }
+  /* Live Train Status page */
+  #live-train-status-page h1 {
+    font-weight: 700;
+    font-size: 2.8rem;
+    margin-bottom: 10px;
+    color: #a0c4ff;
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.8);
+  }
+  #live-train-status-page p {
+    text-align: center;
+    font-size: 1.2rem;
+    margin-bottom: 40px;
+    color: #a0c4ff;
+    font-weight: 600;
+    user-select: none;
+  }
+  .status-header {
+    display: grid;
+    grid-template-columns: 1.2fr 3fr 2.5fr 2.5fr 1fr;
+    color: #a0c4ff;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 12px;
+    border-bottom: 2px solid #a0c4ff;
+    padding-bottom: 8px;
+    user-select: none;
+  }
+  .status-header div {
+    padding-left: 10px;
+  }
+  .timeline {
+    border-left: 4px solid #4db6ac;
+    position: relative;
+    padding-left: 25px;
+    overflow-y: auto;
+    max-height: 70vh;
+    flex-grow: 1;
+  }
+  .station {
+    position: relative;
+    padding: 22px 0 22px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    display: grid;
+    grid-template-columns: 1.2fr 3fr 2.5fr 2.5fr 1fr;
+    align-items: center;
+    outline: none;
+  }
+  .station:focus {
+    background-color: rgba(77, 182, 172, 0.25);
+  }
+  .station::before {
+    content: "";
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: #4db6ac;
+    border: 3px solid #00796b;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+  .distance {
+    padding-left: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #b2dfdb;
+  }
+  .station-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #b2dfdb;
+    cursor: default;
+  }
+  .arrival, .departure, .halt {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #e0e0e0;
+  }
+  .expected-time {
+    color: #ff6b6b;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .scheduled-time {
+    color: #cfd8dc;
+    font-size: 0.85rem;
+  }
+  .station.current {
+    background: rgba(77, 182, 172, 0.15);
+  }
+  .station.current::before {
+    background-color: #ff6b6b;
+    border-color: #b71c1c;
+  }
+  .station.current .station-name {
+    color: #ff6b6b;
+  }
+  /* Buttons for control room pages */
+  .page button {
+    background-color: #0073e6;
+    border: none;
+    padding: 14px 22px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    margin: 10px auto 0;
+    display: block;
+    max-width: 200px;
+    transition: background-color 0.3s ease;
+  }
+  .page button:hover, .page button:focus {
+    background-color: #005bb5;
+    outline: none;
+  }
+  .page button.secondary {
+    background-color: rgba(255,255,255,0.15);
+    color: #a0c4ff;
+  }
+  .page button.secondary:hover, .page button.secondary:focus {
+    background-color: rgba(255,255,255,0.3);
+    outline: none;
+  }
+  /* Responsive adjustments */
+  @media (max-width: 900px) {
+    #details-container {
+      flex-direction: column;
+      max-width: 450px;
+      padding: 30px 20px;
+    }
+    #left-details, #right-details {
+      flex: none;
+      width: 100%;
+      max-width: none;
+    }
+    #train-map-container {
+      height: 250px;
+    }
+  }
+  @media (max-width: 600px) {
+    #main-container h1 {
+      font-size: 2.4rem;
+      margin-bottom: 35px;
+    }
+    .options-wrapper {
+      flex-direction: column;
+      gap: 30px;
+    }
+    .option-card {
+      width: 180px;
+      height: 180px;
+      margin: 0 auto;
+    }
+    .page-container > *, .page > * {
+      max-width: 100%;
+    }
+  }
+  /* Animations */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+      filter: drop-shadow(0 6px 20px rgba(0,0,0,0.4));
+    }
+    50% {
+      transform: translateY(-10px);
+      filter: drop-shadow(0 12px 25px rgba(0,0,0,0.6));
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Landing Page -->
+<div id="main-container" class="page-container active" role="main" aria-label="Landing page with login options">
+  <h1>Welcome to Railway Control System - Tamil Nadu</h1>
+  <div class="options-wrapper">
+    <div class="option-card" data-role="driver" tabindex="0" aria-label="Driver login option">
+      <img src="https://cdn-icons-png.flaticon.com/512/1995/1995521.png" alt="Driver Icon" />
+      <span>Driver</span>
+    </div>
+    <div class="option-card" data-role="controlroom" tabindex="0" aria-label="Control room login option" id="control-room-button">
+      <img src="https://cdn-icons-png.flaticon.com/512/2920/2920393.png" alt="Control Room Icon" />
+      <span>Control Room</span>
+    </div>
+  </div>
+</div>
+
+<!-- Login Container -->
+<div id="login-container" class="page-container" role="main" aria-live="polite" aria-label="Login page">
+  <h2 id="login-title"></h2>
+  <form id="login-form" novalidate>
+    <div class="input-icon">
+      <input type="text" id="username" name="username" placeholder="Username" autocomplete="username" required aria-required="true" aria-describedby="username-icon" />
+      <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="" aria-hidden="true" id="username-icon" />
+    </div>
+    <div class="input-icon">
+      <input type="password" id="password" name="password" placeholder="Password" autocomplete="current-password" required aria-required="true" aria-describedby="password-icon" />
+      <img src="https://cdn-icons-png.flaticon.com/512/3064/3064155.png" alt="" aria-hidden="true" id="password-icon" />
+    </div>
+    <div class="error" id="error-msg" style="display:none;"></div>
+    <button type="submit">Login</button>
+    <button type="button" id="back-btn" class="secondary">Back</button>
+  </form>
+</div>
+
+<!-- Train ID Entry -->
+<div id="trainid-container" class="page-container" role="main" aria-live="polite" aria-label="Train ID input page">
+  <h2>Enter Train ID</h2>
+  <form id="trainid-form" novalidate>
+    <div class="input-icon">
+      <input type="text" id="train-id" name="train-id" placeholder="Train ID" required aria-required="true" aria-describedby="trainid-icon" />
+      <img src="https://cdn-icons-png.flaticon.com/512/1237/1237946.png" alt="" aria-hidden="true" id="trainid-icon" />
+    </div>
+    <div class="error" id="trainid-error" style="display:none"></div>
+    <button type="submit">Get Train Details</button>
+    <button type="button" id="logout-btn" class="secondary">Logout</button>
+  </form>
+</div>
+
+<!-- Train Details Display -->
+<div id="details-container" class="page-container" role="main" aria-live="polite" aria-label="Train details page">
+  <div id="left-details">
+    <h2>Train Running Map</h2>
+    <div id="train-map-container" aria-label="Train current location map container" role="region">
+      <div id="train-map" aria-label="Train current location map" role="img">
+        <div id="train-pin"></div>
+        <div id="train-current-location">Loading location...</div>
+      </div>
+    </div>
+    <button type="button" id="emergency-call-btn" aria-label="Emergency call button">Emergency Call</button>
+    <!-- Moved logout button here -->
+    <button type="button" id="logout-btn-2" class="secondary">Logout</button>
+    <div id="train-tracking-status">
+      <p><strong>Speed:</strong> <span id="train-speed">-</span></p>
+      <p><strong>Next Station:</strong> <span id="train-next-station">-</span></p>
+      <p><strong>Estimated Arrival Time:</strong> <span id="train-est-arrival">-</span></p>
+    </div>
+  </div>
+  <div id="right-details">
+    <h2>Train Details</h2>
+    <img src="https://plus.unsplash.com/premium_photo-1661937674312-89f00c7e44e7?q=80&w=1752&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Train running on tracks" id="train-image" />
+    <table aria-label="Train details table">
+      <tbody id="details-table-body"></tbody>
+    </table>
+    <button type="button" id="back-to-trainid-btn" class="secondary">Back</button>
+  </div>
+</div>
+
+<!-- Control Room URL Input Page -->
+<section id="control-room-url-page" class="page-container" role="main" aria-label="Control Room URL input page" style="max-width: 450px; display: none;">
+  <h2>Enter Control Room URL</h2>
+  <input type="text" id="control-room-url-input" placeholder="Enter Control Room URL" aria-label="Control Room URL input" style="width: 100%; padding: 16px; border-radius: 15px; border: none; font-size: 1.1rem; margin-bottom: 20px;" />
+  <div class="error" id="control-room-url-error" style="display:none; margin-bottom: 20px;"></div>
+  <button id="control-room-url-submit">Submit</button>
+  <button type="button" id="control-room-url-back-btn" class="secondary" style="margin-top: 15px;">Back</button>
+</section>
+
+<!-- Control Room Menu Page -->
+<section id="control-room-menu-page" class="page" aria-label="Control Room menu page" style="display:flex; max-width: 900px; margin: 40px auto; padding: 20px; background: rgba(0,31,63,0.85); border-radius: 20px; box-shadow: 0 8px 40px rgba(0,0,0,0.7); color: #fff; flex-direction: column; align-items: center;">
+
+  <h1 style="font-weight:700; font-size:2.4rem; margin-bottom: 30px; text-shadow: 1px 1px 6px rgba(0,0,0,0.8);">Control Room Menu</h1>
+
+  <div style="display: flex; gap: 30px; width: 100%; justify-content: center; flex-wrap: wrap;">
+
+    <!-- Junctions Division -->
+    <div style="background: rgba(255,255,255,0.1); border-radius: 15px; box-shadow: 0 6px 20px rgba(0,115,230,0.4); flex: 1 1 280px; max-width: 280px; padding: 20px; display: flex; flex-direction: column; align-items: center;">
+      <h2 style="color: #a0c4ff; font-weight: 700; margin-bottom: 15px; font-size: 1.6rem; text-shadow: 1px 1px 6px rgba(0,0,0,0.8);">Junctions</h2>
+      <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Junctions Icon" style="width: 100px; height: 100px; margin-bottom: 20px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));" />
+      <button id="menu-junctions-btn" style="margin-bottom: 10px;">Show Junction List</button>
+      <button style="background-color: #005bb5; margin-bottom: 5px;">Open Junction Map</button>
+    </div>
+
+    <!-- Schedule Division -->
+    <div style="background: rgba(255,255,255,0.1); border-radius: 15px; box-shadow: 0 6px 20px rgba(0,115,230,0.4); flex: 1 1 280px; max-width: 280px; padding: 20px; display: flex; flex-direction: column; align-items: center;">
+      <h2 style="color: #a0c4ff; font-weight: 700; margin-bottom: 15px; font-size: 1.6rem; text-shadow: 1px 1px 6px rgba(0,0,0,0.8);">Schedule</h2>
+      <img src="https://cdn-icons-png.flaticon.com/512/1086/1086933.png" alt="Schedule Icon" style="width: 100px; height: 100px; margin-bottom: 20px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));" />
+      <button id="menu-schedule-btn" style="margin-bottom: 10px;">View Train Schedule</button>
+      <button style="background-color: #005bb5; margin-bottom: 5px;">Export Schedule</button>
+    </div>
+
+    <!-- Reschedule Division -->
+    <div style="background: rgba(255,255,255,0.1); border-radius: 15px; box-shadow: 0 6px 20px rgba(0,115,230,0.4); flex: 1 1 280px; max-width: 280px; padding: 20px; display: flex; flex-direction: column; align-items: center;">
+      <h2 style="color: #a0c4ff; font-weight: 700; margin-bottom: 15px; font-size: 1.6rem; text-shadow: 1px 1px 6px rgba(0,0,0,0.8);">Reschedule</h2>
+      <img src="https://cdn-icons-png.flaticon.com/512/2913/2913467.png" alt="Reschedule Icon" style="width: 100px; height: 100px; margin-bottom: 20px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));" />
+      <button id="menu-reschedule-btn" style="margin-bottom: 10px;">Open Reschedule</button>
+      <button style="background-color: #005bb5; margin-bottom: 5px;">View Reschedule History</button>
+    </div>
+
+  </div>
+
+  <!-- Logout button full width below divisions -->
+  <button id="menu-logout-btn" class="secondary" style="max-width: 280px; margin-top: 40px; width: 100%;">Logout</button>
+
+</section>
+
+
+<!-- Train Schedule Page (hidden by default) -->
+<section id="train-schedule-page" class="page" aria-label="Train Schedule Page" style="display:none; max-width: 900px; margin: 40px auto; padding: 20px; background: rgba(0,31,63,0.85); border-radius: 20px; box-shadow: 0 8px 40px rgba(0,0,0,0.7); color: #fff; flex-direction: column; align-items: center;">
+
+  <h1 style="font-weight:700; font-size:2.4rem; margin-bottom: 30px; text-shadow: 1px 1px 6px rgba(0,0,0,0.8);">
+    View Train Schedule
+  </h1>
+
+  <form id="schedule-form" style="margin-bottom: 20px; width: 100%; max-width: 400px;">
+    <label for="trainNumber" style="display: block; margin-bottom: 8px;">Enter Train Number:</label>
+    <input
+      id="trainNumber"
+      type="text"
+      placeholder="e.g. 12345"
+      required
+      style="width: 100%; padding: 8px 12px; font-size: 1rem; border-radius: 6px; border: none; margin-bottom: 12px;"
+    />
+    <button
+      type="submit"
+      id="get-schedule-btn"
+      style="background-color: #005bb5; color: #fff; padding: 10px 16px; font-size: 1rem; border-radius: 6px; border: none; cursor: pointer; width: 100%;"
+    >
+      Get Schedule
+    </button>
+  </form>
+
+  <p id="error-message" style="color: #ff6b6b; font-weight: bold; margin-bottom: 20px; display:none;"></p>
+  <p id="loading-message" style="color: #a0c4ff; font-weight: bold; margin-bottom: 20px; display:none;">Loading...</p>
+
+  <table id="schedule-table" style="width: 100%; border-collapse: collapse; text-align: left;display:none;">
+    <thead >
+      <tr >
+        <th style="border-bottom: 2px solid #a0c4ff; font-weight: 700; font-size: 1rem;">Train Number</th>
+        <th style="border-bottom: 2px solid #a0c4ff; padding: 10px 12px; font-weight: 700; font-size: 1rem;">Station Code</th>
+        <th style="border-bottom: 2px solid #a0c4ff; padding: 10px 12px; font-weight: 700; font-size: 1rem;">Station Name</th>
+        <th style="border-bottom: 2px solid #a0c4ff; padding: 10px 12px; font-weight: 700; font-size: 1rem;">Scheduled Arrival</th>
+        <th style="border-bottom: 2px solid #a0c4ff; padding: 10px 12px; font-weight: 700; font-size: 1rem;">Scheduled Departure</th>
+      </tr>
+    </thead>
+    <tbody id="schedule-table-body" style="background-color: #bbeea5;"></tbody>
+  </table>
+
+  <table id="schedule-table" style="width: 100%; border-collapse: separate; border-spacing: 10px 8px; text-align: left; display: none;">
+  <thead>
+    <tr>
+      <th style="border-bottom: 2px solid #a0c4ff; font-weight: 700; font-size: 1rem; padding: 12px;">Train Number</th>
+      <th style="border-bottom: 2px solid #a0c4ff; padding: 12px; font-weight: 700; font-size: 1rem;">Station Code</th>
+      <th style="border-bottom: 2px solid #a0c4ff; padding: 12px; font-weight: 700; font-size: 1rem;">Station Name</th>
+      <th style="border-bottom: 2px solid #a0c4ff; padding: 12px; font-weight: 700; font-size: 1rem;">Scheduled Arrival</th>
+      <th style="border-bottom: 2px solid #a0c4ff; padding: 12px; font-weight: 700; font-size: 1rem;">Scheduled Departure</th>
+    </tr>
+  </thead>
+  <tbody id="schedule-table-body" style="background-color: #bbeea5;"></tbody>
+</table>
+
+  <button
+    id="back-to-menu-btn"
+    style="margin-top: 40px; background-color: transparent; color: #a0c4ff; border: 1px solid #a0c4ff; border-radius: 6px; padding: 8px 16px; cursor: pointer; font-size: 1rem;"
+  >
+    Back to Menu
+  </button>
+</section>
+
+
+<section id="reschedule-details-page" class="page-container" aria-label="Reschedule Train Details Page" style="max-width: 450px; margin: 40px auto; padding: 20px; background: rgba(0,31,63,0.85); border-radius: 20px; box-shadow: 0 8px 40px rgba(0,0,0,0.7); color: #fff; display: none; flex-direction: column; align-items: stretch;">
+
+  <h1 style="margin-bottom: 20px; text-align: center;">Reschedule Train Details</h1>
+
+  <form id="rescheduleDetailsForm" style="display: flex; flex-direction: column; gap: 15px;">
+
+    <div>
+      <label for="trainIdInput" style="font-weight: 700;">Train ID</label><br />
+      <input type="text" id="trainIdInput" name="trainIdInput" placeholder="Enter Train ID" required style="width: 100%; padding: 12px; border-radius: 10px; border: none; font-size: 1rem;" />
+    </div>
+
+    <div>
+      <label for="trainTypeSelect" style="font-weight: 700;">Train Type</label><br />
+      <select id="trainTypeSelect" name="trainTypeSelect" required style="width: 100%; padding: 12px; border-radius: 10px; border: none; font-size: 1rem;">
+        <option value="" disabled selected>Select Train Type</option>
+        <option value="Passenger">Passenger</option>
+        <option value="Express">Express</option>
+        <option value="Freight">Freight</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="currentPositionInput" style="font-weight: 700;">Current Position (Station/Section)</label><br />
+      <input type="text" id="currentPositionInput" name="currentPositionInput" placeholder="Enter Current Position" required style="width: 100%; padding: 12px; border-radius: 10px; border: none; font-size: 1rem;" />
+    </div>
+
+    <div>
+      <label for="delayInput" style="font-weight: 700;">Delay (min)</label><br />
+      <input type="number" id="delayInput" name="delayInput" min="0" placeholder="Enter Delay in minutes" required style="width: 100%; padding: 12px; border-radius: 10px; border: none; font-size: 1rem;" />
+    </div>
+
+    <div>
+      <label for="bufferInput" style="font-weight: 700;">Scheduled Buffer (min)</label><br />
+      <input type="number" id="bufferInput" name="bufferInput" min="0" placeholder="Enter Scheduled Buffer in minutes" required style="width: 100%; padding: 12px; border-radius: 10px; border: none; font-size: 1rem;" />
+    </div>
+
+    <div>
+      <label for="trackAvailabilitySelect" style="font-weight: 700;">Track Availability Ahead</label><br />
+      <select id="trackAvailabilitySelect" name="trackAvailabilitySelect" required style="width: 100%; padding: 12px; border-radius: 10px; border: none; font-size: 1rem;">
+        <option value="" disabled selected>Select Track Availability</option>
+        <option value="Free">Free</option>
+        <option value="Occupied">Occupied</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="stoppingPatternSelect" style="font-weight: 700;">Stopping Pattern</label><br />
+      <select id="stoppingPatternSelect" name="stoppingPatternSelect" required style="width: 100%; padding: 12px; border-radius: 10px; border: none; font-size: 1rem;">
+        <option value="" disabled selected>Select Stopping Pattern</option>
+        <option value="All Stops">All Stops</option>
+        <option value="Skip">Skip</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="sectionTypeSelect" style="font-weight: 700;">Section Type</label><br />
+      <select id="sectionTypeSelect" name="sectionTypeSelect" required style="width: 100%; padding: 12px; border-radius: 10px; border: none; font-size: 1rem;">
+        <option value="" disabled selected>Select Section Type</option>
+        <option value="Double-line">Double-line</option>
+        <option value="Single-line">Single-line</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="speedLimitInput" style="font-weight: 700;">Speed Limit Next Section (km/h)</label><br />
+      <input type="number" id="speedLimitInput" name="speedLimitInput" min="0" placeholder="Enter Speed Limit in km/h" required style="width: 100%; padding: 12px; border-radius: 10px; border: none; font-size: 1rem;" />
+    </div>
+
+    <div class="error" id="rescheduleFormError" style="display:none;"></div>
+
+    <button type="submit" style="padding: 14px; border-radius: 15px; background-color: #0073e6; color: white; font-weight: 700; cursor: pointer; border: none;">Submit Reschedule</button>
+
+    <div id="rescheduleModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDesc" style="display:none; position: fixed; inset:0; background: rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index: 10000;">
+  <div style="background:#003366; color:#fff; border-radius: 15px; max-width: 400px; width: 90%; padding: 20px; text-align:center; box-shadow: 0 8px 30px rgba(0,0,0,0.8);">
+    <h2 id="modalTitle" style="margin-bottom: 15px;">Scheduling Decision</h2>
+    <p id="modalDesc" style="font-size: 1.2rem; margin-bottom: 25px;"></p>
+    <button id="acceptBtn" style="margin-right: 15px; padding: 12px 25px; border:none; border-radius: 12px; background: #4caf50; color: white; font-weight: 700; cursor: pointer;">Accept</button>
+    <button id="rejectBtn" style="padding: 12px 25px; border:none; border-radius: 12px; background: #f44336; color: white; font-weight: 700; cursor: pointer;">Reject</button>
+  </div>
+</div>
+
+    <button type="button" id="rescheduleDetailsBackBtn" style="margin-top: 10px; padding: 12px; border-radius: 15px; background-color: #555; color: white; font-weight: 700; cursor: pointer; border: none;">Back to Menu</button>
+
+  </form>
+</section>
+
+<!-- Junction List Page -->
+<section id="junction-list-page" class="page" aria-label="Control room junction list page">
+  <h1>Control Room - Tamil Nadu Junctions (IST)</h1>
+  <div class="search-bar">
+    <input type="search" id="junction-search" placeholder="Search junction..." aria-label="Search junction" autocomplete="off" />
+    <button id="clear-junction-search" aria-label="Clear search">Clear</button>
+  </div>
+  <nav aria-label="Junction list" class="junction-list" tabindex="0" id="junction-list" role="list"></nav>
+  <button type="button" id="back-to-menu-from-junctions" class="secondary" style="max-width:300px; margin: 30px auto 0; display: block;">Back to Menu</button>
+</section>
+
+<!-- Arrival trains at junction -->
+<section id="arrival-trains-page" class="page" aria-label="Arrival trains at junction page">
+  <h1 id="arrival-junction-title">Arrivals</h1>
+  <div class="search-bar">
+    <input type="search" id="train-search" placeholder="Search train..." aria-label="Search train" autocomplete="off" />
+    <button id="clear-train-search" aria-label="Clear train search">Clear</button>
+  </div>
+  <table class="arrivals-table" role="table" aria-label="Trains arriving at junction">
+    <thead>
+      <tr>
+        <th scope="col">Train ID</th>
+        <th scope="col">Train Name</th>
+        <th scope="col">Arrival Time</th>
+        <th scope="col">Platform</th>
+      </tr>
+    </thead>
+    <tbody id="arrival-trains-list" tabindex="0"></tbody>
+  </table>
+  <button class="secondary" id="back-to-junctions-btn">Back to Junctions</button>
+</section>
+
+<!-- Live Train Status page -->
+<section id="live-train-status-page" class="page" aria-label="Live train status page">
+  <h1>Live Train Status</h1>
+  <p>Locate Your Train Anywhere, Anytime!</p>
+  <div class="status-header" aria-hidden="true">
+    <div>Distance</div>
+    <div>Arrival</div>
+    <div>Departure</div>
+    <div>Halt(PF)</div>
+  </div>
+  <div class="timeline" aria-live="polite" aria-relevant="additions" id="live-train-timeline"></div>
+  <button class="secondary" id="back-to-arrivals-btn">Back to Arrivals</button>
+</section>
+
+<!-- Train Schedule Page -->
+<section id="train-schedule-page" class="page" aria-label="Train schedule page" style="display:none; max-width: 900px; margin: auto; padding: 20px; background: rgba(0,31,63,0.85); border-radius: 20px; box-shadow: 0 8px 40px rgba(0,0,0,0.7); color: #fff; flex-direction: column; align-items: center;">
+  <h1>Train Schedule</h1>
+  <table role="table" aria-label="Train schedule table" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+    <thead>
+      <tr style="background-color: #004a99;">
+        <th style="padding:12px; text-align:left; border-bottom: 2px solid #0073e6;">Train ID</th>
+        <th style="padding:12px; text-align:left; border-bottom: 2px solid #0073e6;">Train Name</th>
+        <th style="padding:12px; text-align:left; border-bottom: 2px solid #0073e6;">Departure</th>
+        <th style="padding:12px; text-align:left; border-bottom: 2px solid #0073e6;">Arrival</th>
+        <th style="padding:12px; text-align:left; border-bottom: 2px solid #0073e6;">Days</th>
+      </tr>
+    </thead>
+    <tbody id="train-schedule-body" style="font-weight: 600; font-size: 1rem; color: #b2dfdb;">
+      <!-- Filled dynamically -->
+    </tbody>
+  </table>
+  <button id="back-to-menu-from-schedule" class="secondary" style="max-width: 250px;">Back to Menu</button>
+</section>
+
+<!-- Reschedule Page Placeholder -->
+<section id="reschedule-page" class="page" aria-label="Reschedule page" style="display:none; max-width: 900px; margin: auto; padding: 20px; background: rgba(0,31,63,0.85); border-radius: 20px; box-shadow: 0 8px 40px rgba(0,0,0,0.7); color: #fff; flex-direction: column; align-items: center;">
+  <h1>Reschedule</h1>
+  <p style="margin-top: 20px; font-size: 1.2rem; color: #b2dfdb;">(This page is under construction.)</p>
+  <button id="reschedule-back-btn" class="secondary" style="max-width: 250px; margin-top: 30px;">Back to Menu</button>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Elements
+  const mainContainer = document.getElementById('main-container');
+  const loginContainer = document.getElementById('login-container');
+  const trainIdContainer = document.getElementById('trainid-container');
+  const detailsContainer = document.getElementById('details-container');
+  const junctionListPage = document.getElementById('junction-list-page');
+  const arrivalTrainsPage = document.getElementById('arrival-trains-page');
+  const liveTrainStatusPage = document.getElementById('live-train-status-page');
+  const controlRoomUrlPage = document.getElementById('control-room-url-page');
+  const controlRoomMenuPage = document.getElementById('control-room-menu-page');
+  const trainSchedulePage = document.getElementById('train-schedule-page');
+  const reschedulePage = document.getElementById('reschedule-page');
+  const rescheduleDetailsPage = document.getElementById('reschedule-details-page');
+
+  const controlRoomUrlInput = document.getElementById('control-room-url-input');
+  const controlRoomUrlError = document.getElementById('control-room-url-error');
+
+  const loginTitle = document.getElementById('login-title');
+  const errorMsg = document.getElementById('error-msg');
+  const loginForm = document.getElementById('login-form');
+  const backBtn = document.getElementById('back-btn');
+
+  const trainIdForm = document.getElementById('trainid-form');
+  const trainIdError = document.getElementById('trainid-error');
+  const trainIdInput = document.getElementById('train-id');
+
+  const detailsTableBody = document.getElementById('details-table-body');
+  const backToTrainIdBtn = document.getElementById('back-to-trainid-btn');
+  const logoutBtn = document.getElementById('logout-btn');
+  const logoutBtn2 = document.getElementById('logout-btn-2');
+
+  const emergencyCallBtn = document.getElementById('emergency-call-btn');
+  const trainCurrentLocationSpan = document.getElementById('train-current-location');
+  const trainSpeedSpan = document.getElementById('train-speed');
+  const trainNextStationSpan = document.getElementById('train-next-station');
+  const trainEstArrivalSpan = document.getElementById('train-est-arrival');
+
+  const backToJunctionsBtn = document.getElementById('back-to-junctions-btn');
+  const backToArrivalsBtn = document.getElementById('back-to-arrivals-btn');
+
+  const junctionListEl = document.getElementById('junction-list');
+  const junctionSearchInput = document.getElementById('junction-search');
+  const clearJunctionSearchBtn = document.getElementById('clear-junction-search');
+
+  const arrivalJunctionTitle = document.getElementById('arrival-junction-title');
+  const arrivalTrainsList = document.getElementById('arrival-trains-list');
+  const trainSearchInput = document.getElementById('train-search');
+  const clearTrainSearchBtn = document.getElementById('clear-train-search');
+
+  const liveTrainTimeline = document.getElementById('live-train-timeline');
+
+  const menuJunctionsBtn = document.getElementById('menu-junctions-btn');
+  const menuScheduleBtn = document.getElementById('menu-schedule-btn');
+  const menuRescheduleBtn = document.getElementById('menu-reschedule-btn');
+  const menuLogoutBtn = document.getElementById('menu-logout-btn');
+
+  const backToMenuFromJunctionsBtn = document.getElementById('back-to-menu-from-junctions');
+  const backToMenuFromScheduleBtn = document.getElementById('back-to-menu-from-schedule');
+  const backToMenuFromRescheduleBtn = document.getElementById('back-to-menu-from-reschedule');
+
+  const trainScheduleBody = document.getElementById('train-schedule-body');
+
+  const rescheduleDetailsForm = document.getElementById('rescheduleDetailsForm');
+  const rescheduleFormError = document.getElementById('rescheduleFormError');
+  const rescheduleDetailsBackBtn = document.getElementById('rescheduleDetailsBackBtn');
+
+  let currentRole = null;
+  let selectedJunctionCode = null;
+  let selectedTrainId = null;
+
+  // Role cards click
+  document.querySelectorAll('.option-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const role = card.getAttribute('data-role');
+      if (role === 'controlroom') {
+        currentRole = 'controlroom';
+        showControlRoomUrlInput();
+        return;
+      }
+      currentRole = role;
+      showLogin(role);
+    });
+    card.addEventListener('keydown', e => {
+      if(e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        card.click();
+      }
+    });
+  });
+
+  function showPage(page) {
+    [mainContainer, loginContainer, trainIdContainer, detailsContainer,
+      junctionListPage, arrivalTrainsPage, liveTrainStatusPage, controlRoomUrlPage,
+      controlRoomMenuPage, trainSchedulePage, reschedulePage, rescheduleDetailsPage
+    ].forEach(c => {
+      c.classList.remove('active');
+      c.style.display = 'none';
+    });
+    page.style.display = 'flex';
+    setTimeout(() => page.classList.add('active'), 10);
+  }
+
+  function showMain() {
+    currentRole = null;
+    selectedJunctionCode = null;
+    selectedTrainId = null;
+    errorMsg.style.display = 'none';
+    trainIdError.style.display = 'none';
+    controlRoomUrlError.style.display = 'none';
+    rescheduleFormError.style.display = 'none';
+    loginForm.reset();
+    trainIdForm.reset();
+    controlRoomUrlInput.value = '';
+    rescheduleDetailsForm.reset();
+    showPage(mainContainer);
+  }
+
+  function showLogin(role) {
+    errorMsg.style.display = 'none';
+    loginForm.reset();
+    loginTitle.textContent = role === 'driver' ? 'Driver Login' : 'Control Room Login';
+    showPage(loginContainer);
+  }
+
+  function showTrainIdInput() {
+    trainIdError.style.display = 'none';
+    trainIdForm.reset();
+    showPage(trainIdContainer);
+  }
+
+  function showTrainDetails(data) {
+    detailsTableBody.innerHTML = '';
+    for (const [key, value] of Object.entries(data)) {
+      const tr = document.createElement('tr');
+      const th = document.createElement('th');
+      th.textContent = key;
+      const td = document.createElement('td');
+      td.textContent = value;
+      tr.appendChild(th);
+      tr.appendChild(td);
+      detailsTableBody.appendChild(tr);
+    }
+    trainCurrentLocationSpan.textContent = data['Current Location'] || 'Unknown';
+    trainSpeedSpan.textContent = data['Speed'] || '-';
+    trainNextStationSpan.textContent = data['Next Station'] || '-';
+    trainEstArrivalSpan.textContent = data['Estimated Arrival Time'] || '-';
+    showPage(detailsContainer);
+  }
+
+  function showControlRoomJunctionList() {
+    selectedJunctionCode = null;
+    selectedTrainId = null;
+    renderJunctionList();
+    showPage(junctionListPage);
+  }
+
+  function showControlRoomUrlInput() {
+    controlRoomUrlError.style.display = 'none';
+    controlRoomUrlInput.value = '';
+    showPage(controlRoomUrlPage);
+    controlRoomUrlInput.focus();
+  }
+
+  function showArrivalTrains(code, name) {
+    arrivalJunctionTitle.textContent = `Arrivals at ${name} (${code})`;
+    trainSearchInput.value = '';
+    renderArrivalTrains(code);
+    showPage(arrivalTrainsPage);
+    trainSearchInput.focus();
+  }
+
+  function showLiveTrainStatus(trainId) {
+    selectedTrainId = trainId;
+    if (trainId !== '1234') {
+      liveTrainTimeline.innerHTML = '<p style="color:#ff6b6b; font-weight:700; text-align:center;">No live status data available for this train.</p>';
+    } else {
+      renderLiveTrainTimeline(liveTrainStatusData);
+    }
+    showPage(liveTrainStatusPage);
+  }
+
+  // Show Control Room Menu after successful URL submit
+  function showControlRoomMenu() {
+    showPage(controlRoomMenuPage);
+  }
+
+  loginForm.addEventListener('submit', e => {
+    e.preventDefault();
+    errorMsg.style.display = 'none';
+    const username = loginForm.username.value.trim();
+    const password = loginForm.password.value;
+    if (!username || !password) {
+      errorMsg.textContent = 'Please enter username and password.';
+      errorMsg.style.display = 'block';
+      return;
+    }
+    if (currentRole === 'driver' && username === 'driver' && password === 'driver123') {
+      showTrainIdInput();
+    } else if (currentRole === 'controlroom' && username === 'control' && password === 'control123') {
+      showControlRoomUrlInput();
+    } else {
+      errorMsg.textContent = 'Invalid username or password for ' + currentRole;
+      errorMsg.style.display = 'block';
+    }
+  });
+
+  backBtn.addEventListener('click', showMain);
+  logoutBtn.addEventListener('click', showMain);
+  logoutBtn2.addEventListener('click', showMain);
+  menuLogoutBtn.addEventListener('click', showMain);
+
+  trainIdForm.addEventListener('submit', e => {
+    e.preventDefault();
+    trainIdError.style.display = 'none';
+    const trainId = trainIdInput.value.trim();
+    if (!trainId) {
+      trainIdError.textContent = 'Please enter a valid Train ID.';
+      trainIdError.style.display = 'block';
+      return;
+    }
+    const mockTrainData = {
+      '1234': {
+        'Train ID': '1234',
+        'Current Location': 'Chennai Central',
+        'Speed': '80 km/h',
+        'Arrival Station': 'Coimbatore Junction',
+        'Current Track': 'Track 2',
+        'Next Station': 'Arakkonam',
+        'Estimated Arrival Time': '14:30 IST',
+        'No of Passengers': '250',
+        'Train Type': 'Express',
+      },
+      '5678': {
+        'Train ID': '5678',
+        'Current Location': 'Madurai Junction',
+        'Speed': '65 km/h',
+        'Arrival Station': 'Chennai Egmore',
+        'Current Track': 'Track 1',
+        'Next Station': 'Dindigul',
+        'Estimated Arrival Time': '16:00 IST',
+        'No of Passengers': '180',
+        'Train Type': 'Passenger',
+      }
+    };
+    const trainDetails = mockTrainData[trainId];
+    if (!trainDetails) {
+      trainIdError.textContent = 'No data found for Train ID: ' + trainId;
+      trainIdError.style.display = 'block';
+      return;
+    }
+    showTrainDetails(trainDetails);
+  });
+
+  backToTrainIdBtn.addEventListener('click', () => {
+    showTrainIdInput();
+  });
+
+  emergencyCallBtn.addEventListener('click', () => {
+    alert('Emergency call initiated! Please contact control room immediately.');
+  });
+
+  backToJunctionsBtn.addEventListener('click', () => {
+    selectedJunctionCode = null;
+    trainSearchInput.value = '';
+    showControlRoomJunctionList();
+    junctionSearchInput.focus();
+  });
+  backToArrivalsBtn.addEventListener('click', () => {
+    if (!selectedJunctionCode) {
+      showControlRoomJunctionList();
+      junctionSearchInput.focus();
+      return;
+    }
+    showArrivalTrains(selectedJunctionCode, junctions.find(j => j.code === selectedJunctionCode)?.name || '');
+  });
+
+  // Show reschedule page and hide menu when clicking "Open Reschedule"
+  menuRescheduleBtn.addEventListener('click', () => {
+    controlRoomMenuPage.style.display = 'none';
+    rescheduleDetailsPage.style.display = 'flex';
+    setTimeout(() => rescheduleDetailsPage.classList.add('active'), 10);
+  });
+
+  // Back button on reschedule details page to show menu again
+  rescheduleDetailsBackBtn.addEventListener('click', () => {
+    rescheduleDetailsPage.classList.remove('active');
+    setTimeout(() => {
+      rescheduleDetailsPage.style.display = 'none';
+      controlRoomMenuPage.style.display = 'flex';
+      controlRoomMenuPage.classList.add('active');
+    }, 300);
+    rescheduleDetailsForm.reset();
+    rescheduleFormError.style.display = 'none';
+  });
+
+const rescheduleModal = document.getElementById('rescheduleModal');
+const modalDesc = document.getElementById('modalDesc');
+const acceptBtn = document.getElementById('acceptBtn');
+const rejectBtn = document.getElementById('rejectBtn');
+
+rescheduleDetailsForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  rescheduleFormError.style.display = 'none';
+
+  const formData = {
+    train_id: rescheduleDetailsForm.trainIdInput.value.trim(),
+    train_type: rescheduleDetailsForm.trainTypeSelect.value,
+    current_pos: rescheduleDetailsForm.currentPositionInput.value.trim(),
+    delay: Number(rescheduleDetailsForm.delayInput.value),
+    buffer: Number(rescheduleDetailsForm.bufferInput.value),
+    track_avail: rescheduleDetailsForm.trackAvailabilitySelect.value,
+    stopping_pattern: rescheduleDetailsForm.stoppingPatternSelect.value,
+    section_type: rescheduleDetailsForm.sectionTypeSelect.value,
+    speed_limit: Number(rescheduleDetailsForm.speedLimitInput.value)
+  };
+
+  // Basic validation
+  for (const [key, value] of Object.entries(formData)) {
+    if (value === '' || value === null || (typeof value === 'number' && isNaN(value))) {
+      rescheduleFormError.textContent = 'Please fill all fields correctly.';
+      rescheduleFormError.style.display = 'block';
+      return;
+    }
+    if ((key === 'delay' || key === 'buffer' || key === 'speed_limit') && value < 0) {
+      rescheduleFormError.textContent = 'Numeric values cannot be negative.';
+      rescheduleFormError.style.display = 'block';
+      return;
+    }
+  }
+
+  try {
+    // Call backend API
+    const response = await fetch('http://localhost:8000/api/reschedule', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.status}`);
+    }
+    const result = await response.json();
+
+    // Show modal with response message
+    modalDesc.textContent = result.message;
+    rescheduleModal.style.display = 'flex';
+
+    acceptBtn.focus();
+
+    // Accept handler
+    const acceptHandler = () => {
+      alert('You accepted the scheduling decision.');
+      rescheduleModal.style.display = 'none';
+      rescheduleDetailsForm.reset();
+      rescheduleDetailsBackBtn.click(); // go back to menu
+      cleanup();
+    };
+
+    // Reject handler
+    const rejectHandler = () => {
+      alert('You rejected the scheduling decision.');
+      rescheduleModal.style.display = 'none';
+      cleanup();
+    };
+
+    function cleanup() {
+      acceptBtn.removeEventListener('click', acceptHandler);
+      rejectBtn.removeEventListener('click', rejectHandler);
+    }
+
+    acceptBtn.addEventListener('click', acceptHandler);
+    rejectBtn.addEventListener('click', rejectHandler);
+
+  } catch (error) {
+    rescheduleFormError.textContent = `Error communicating with server: ${error.message}`;
+    rescheduleFormError.style.display = 'block';
+  }
+});
+
+  const controlRoomUrlSubmitBtn = document.getElementById('control-room-url-submit');
+  const controlRoomUrlBackBtn = document.getElementById('control-room-url-back-btn');
+
+  controlRoomUrlSubmitBtn.addEventListener('click', () => {
+    const enteredUrl = controlRoomUrlInput.value.trim().toLowerCase();
+    const expectedUrl = 'https://controlroom.example.com';
+    if (enteredUrl === expectedUrl) {
+      controlRoomUrlError.style.display = 'none';
+      showControlRoomMenu();
+    } else {
+      controlRoomUrlError.textContent = 'Incorrect URL. Please try again.';
+      controlRoomUrlError.style.display = 'block';
+    }
+  });
+
+  controlRoomUrlBackBtn.addEventListener('click', () => {
+    showMain();
+  });
+
+  // Control Room Menu buttons
+  menuJunctionsBtn.addEventListener('click', () => {
+    showControlRoomJunctionList();
+  });
+
+  menuScheduleBtn.addEventListener('click', () => {
+    renderTrainSchedule();
+    showPage(trainSchedulePage);
+  });
+
+  backToMenuFromJunctionsBtn.addEventListener('click', () => {
+    showControlRoomMenu();
+  });
+
+  backToMenuFromScheduleBtn.addEventListener('click', () => {
+    showControlRoomMenu();
+  });
+
+  backToMenuFromRescheduleBtn?.addEventListener('click', () => {
+    showControlRoomMenu();
+  });
+
+  // Junctions data
+  const junctions = [
+    { code: 'MAS', name: 'Chennai Central', ist: '12:00 PM' },
+    { code: 'MDU', name: 'Madurai Junction', ist: '12:15 PM' },
+    { code: 'CBE', name: 'Coimbatore Junction', ist: '12:30 PM' },
+    { code: 'TPJ', name: 'Tiruchirappalli Junction', ist: '12:45 PM' },
+    { code: 'TEN', name: 'Tirunelveli', ist: '01:00 PM' },
+    { code: 'SA', name: 'Salem Junction', ist: '01:15 PM' },
+    { code: 'SBC', name: 'Bangalore City (near TN border)', ist: '01:30 PM' },
+    { code: 'QDN', name: 'Coimbatore North', ist: '01:45 PM' },
+    { code: 'NGT', name: 'Nagercoil Junction', ist: '02:00 PM' },
+    { code: 'ED', name: 'Erode Junction', ist: '02:15 PM' },
+  ];
+
+  const arrivalsData = {
+    'MAS': [
+      { id: '1234', name: 'Chennai Express', arrival: '12:00 PM IST', platform: '1' },
+      { id: '5678', name: 'Coimbatore Special', arrival: '12:30 PM IST', platform: '3' },
+      { id: '9012', name: 'Nilgiri Express', arrival: '01:00 PM IST', platform: '2' },
+    ],
+    'MDU': [
+      { id: '4321', name: 'Madurai Passenger', arrival: '12:15 PM IST', platform: '2' },
+      { id: '8765', name: 'Southern Express', arrival: '12:45 PM IST', platform: '4' },
+    ],
+    'CBE': [
+      { id: '3456', name: 'Coimbatore Mail', arrival: '12:30 PM IST', platform: '1' },
+      { id: '6543', name: 'Coimbatore Local', arrival: '01:15 PM IST', platform: '3' },
+    ],
+    'TPJ': [
+      { id: '7890', name: 'Trichy Express', arrival: '12:45 PM IST', platform: '2' },
+    ],
+  };
+
+  const liveTrainStatusData = [
+    {
+      code: 'MAS', ist: '12:00 PM',
+      station: 'Chennai Central',
+      arrivalExp: '12:00 PM IST', arrivalSch: '12:00 PM IST',
+      departureExp: '12:05 PM IST', departureSch: '12:05 PM IST',
+      halt: '5 m', platform: 'P.F. 1',
+      current: true,
+      intermediateStations: [
+        { count: 1, text: '1 intermediate Station' }
+      ]
+    },
+    {
+      code: 'SA',
+      station: 'Salem Junction',
+      arrivalExp: '01:15 PM IST', arrivalSch: '01:10 PM IST',
+      departureExp: '01:20 PM IST', departureSch: '01:15 PM IST',
+      halt: '5 m', platform: 'P.F. 4',
+      current: false,
+      intermediateStations: [
+        { count: 2, text: '2 intermediate Stations' }
+      ]
+    },
+    {
+      code: 'CBE',
+      station: 'Coimbatore Junction',
+      arrivalExp: '02:30 PM IST', arrivalSch: '02:25 PM IST',
+      departureExp: '02:35 PM IST', departureSch: '02:30 PM IST',
+      halt: '5 m', platform: 'P.F. 2',
+      current: false,
+      intermediateStations: []
+    },
+    {
+      code: 'TPJ',
+      station: 'Tiruchirappalli Junction',
+      arrivalExp: '03:45 PM IST', arrivalSch: '03:40 PM IST',
+      departureExp: '03:50 PM IST', departureSch: '03:45 PM IST',
+      halt: '5 m', platform: 'P.F. 3',
+      current: false,
+      intermediateStations: []
+    }
+  ];
+
+  // Train Schedule Data
+  const trainScheduleData = [
+    { id: '1234', name: 'Chennai Express', departure: '06:00 AM', arrival: '02:00 PM', days: 'Mon, Wed, Fri' },
+    { id: '5678', name: 'Coimbatore Special', departure: '07:30 AM', arrival: '03:30 PM', days: 'Tue, Thu, Sat' },
+    { id: '9012', name: 'Nilgiri Express', departure: '09:00 AM', arrival: '05:00 PM', days: 'Daily' },
+    { id: '3456', name: 'Madurai Mail', departure: '05:00 AM', arrival: '01:00 PM', days: 'Daily' },
+    { id: '7890', name: 'Trichy Express', departure: '08:45 AM', arrival: '04:45 PM', days: 'Mon, Tue, Thu' }
+  ];
+
+  function renderJunctionList() {
+    const searchTerm = junctionSearchInput.value.toLowerCase();
+    junctionListEl.innerHTML = '';
+    const filtered = junctions.filter(j =>
+      j.name.toLowerCase().includes(searchTerm) || j.code.toLowerCase().includes(searchTerm)
+    );
+    if (filtered.length === 0) {
+      junctionListEl.innerHTML = '<p style="margin:0; padding:10px; color:#ff6b6b;">No junctions found.</p>';
+      return;
+    }
+    filtered.forEach(junction => {
+      const div = document.createElement('div');
+      div.className = 'junction-item';
+      div.setAttribute('tabindex', '0');
+      div.setAttribute('role', 'listitem');
+      div.textContent = `${junction.name} (${junction.code}) - IST: ${junction.ist}`;
+      div.addEventListener('click', () => {
+        selectedJunctionCode = junction.code;
+        showArrivalTrains(junction.code, junction.name);
+      });
+      div.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          div.click();
+        }
+      });
+      junctionListEl.appendChild(div);
+    });
+  }
+
+  junctionSearchInput.addEventListener('input', renderJunctionList);
+  clearJunctionSearchBtn.addEventListener('click', () => {
+    junctionSearchInput.value = '';
+    renderJunctionList();
+    junctionSearchInput.focus();
+  });
+
+  function renderArrivalTrains(junctionCode) {
+    const trains = arrivalsData[junctionCode] || [];
+    const searchTerm = trainSearchInput.value.toLowerCase();
+    arrivalTrainsList.innerHTML = '';
+    const filteredTrains = trains.filter(train =>
+      train.id.toLowerCase().includes(searchTerm) || train.name.toLowerCase().includes(searchTerm)
+    );
+    if (filteredTrains.length === 0) {
+      arrivalTrainsList.innerHTML = '<tr><td colspan="4" style="color:#ff6b6b; font-weight:700; text-align:center;">No trains found.</td></tr>';
+      return;
+    }
+    filteredTrains.forEach(train => {
+      const tr = document.createElement('tr');
+      tr.setAttribute('tabindex', '0');
+      tr.style.cursor = 'pointer';
+      tr.addEventListener('click', () => {
+        showLiveTrainStatus(train.id);
+      });
+      tr.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          tr.click();
+        }
+      });
+      tr.innerHTML = `
+        <td>${train.id}</td>
+        <td>${train.name}</td>
+        <td>${train.arrival}</td>
+        <td>${train.platform}</td>
+      `;
+      arrivalTrainsList.appendChild(tr);
+    });
+  }
+
+  trainSearchInput.addEventListener('input', () => {
+    if (selectedJunctionCode) {
+      renderArrivalTrains(selectedJunctionCode);
+    }
+  });
+  clearTrainSearchBtn.addEventListener('click', () => {
+    trainSearchInput.value = '';
+    if (selectedJunctionCode) {
+      renderArrivalTrains(selectedJunctionCode);
+    }
+    trainSearchInput.focus();
+  });
+
+  function renderLiveTrainTimeline(timelineData) {
+    liveTrainTimeline.innerHTML = '';
+    timelineData.forEach(station => {
+      const stationContainer = document.createElement('div');
+      stationContainer.className = 'station';
+      if (station.current) {
+        stationContainer.classList.add('current');
+      }
+      stationContainer.setAttribute('tabindex', '0');
+      stationContainer.innerHTML = `
+        <div class="distance">${station.code}</div>
+        <div class="station-name">${station.station}</div>
+        <div class="arrival">
+          <div class="expected-time">${station.arrivalExp}</div>
+          <div class="scheduled-time">${station.arrivalSch}</div>
+        </div>
+        <div class="departure">
+          <div class="expected-time">${station.departureExp}</div>
+          <div class="scheduled-time">${station.departureSch}</div>
+        </div>
+        <div class="halt" title="Halt time and platform">${station.halt} <br />${station.platform}</div>
+      `;
+      liveTrainTimeline.appendChild(stationContainer);
+      if (station.intermediateStations && station.intermediateStations.length > 0) {
+        station.intermediateStations.forEach(inter => {
+          const interDiv = document.createElement('div');
+          interDiv.className = 'station';
+          interDiv.style.fontStyle = 'italic';
+          interDiv.style.fontWeight = '500';
+          interDiv.style.color = '#b2dfdb';
+          interDiv.style.paddingLeft = '40px';
+          interDiv.textContent = inter.text;
+          liveTrainTimeline.appendChild(interDiv);
+        });
+      }
+    });
+  }
+
+  // Render Train Schedule Table
+  function renderTrainSchedule() {
+    trainScheduleBody.innerHTML = '';
+    trainScheduleData.forEach(train => {
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid #0073e6';
+      tr.innerHTML = `
+        <td style="padding: 10px 12px;">${train.id}</td>
+        <td style="padding: 10px 12px;">${train.name}</td>
+        <td style="padding: 10px 12px;">${train.departure}</td>
+        <td style="padding: 10px 12px;">${train.arrival}</td>
+        <td style="padding: 10px 12px;">${train.days}</td>
+      `;
+      trainScheduleBody.appendChild(tr);
+    });
+  }
+
+  showMain();
+});
+
+  (function () {
+    const menuPage = document.getElementById("control-room-menu-page");
+    const schedulePage = document.getElementById("train-schedule-page");
+    const scheduleForm = document.getElementById("schedule-form");
+    const trainNumberInput = document.getElementById("trainNumber");
+    const errorMessage = document.getElementById("error-message");
+    const loadingMessage = document.getElementById("loading-message");
+    const scheduleTable = document.getElementById("schedule-table");
+    const scheduleTableBody = document.getElementById("schedule-table-body");
+    const backToMenuBtn = document.getElementById("back-to-menu-btn");
+    const getScheduleBtn = document.getElementById("get-schedule-btn");
+
+    // Show schedule page, hide menu
+    document.getElementById("menu-schedule-btn").addEventListener("click", () => {
+      menuPage.style.display = "none";
+      schedulePage.style.display = "flex";
+      errorMessage.style.display = "none";
+      loadingMessage.style.display = "none";
+      scheduleTable.style.display = "none";
+      scheduleTableBody.innerHTML = "";
+      trainNumberInput.value = "";
+      getScheduleBtn.disabled = false;
+    });
+
+    // Back button logic
+    backToMenuBtn.addEventListener("click", () => {
+      schedulePage.style.display = "none";
+      menuPage.style.display = "flex";
+    });
+
+    // Form submit handler
+    scheduleForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const trainNumber = trainNumberInput.value.trim();
+      if (!trainNumber) {
+        errorMessage.textContent = "Please enter a valid train number.";
+        errorMessage.style.display = "block";
+        scheduleTable.style.display = "none";
+        return;
+      }
+
+      errorMessage.style.display = "none";
+      scheduleTable.style.display = "none";
+      loadingMessage.style.display = "block";
+      getScheduleBtn.disabled = true;
+      scheduleTableBody.innerHTML = "";
+
+      try {
+        // Change URL if your backend is hosted elsewhere
+        const response = await fetch(
+          `http://localhost:8000/api/schedule/train?train_number=${encodeURIComponent(trainNumber)}`
+        );
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+          errorMessage.textContent = "No schedule found for this train number.";
+          errorMessage.style.display = "block";
+          loadingMessage.style.display = "none";
+          getScheduleBtn.disabled = false;
+          return;
+        }
+
+        // Populate table rows
+        data.forEach((stop, idx) => {
+          const row = document.createElement("tr");
+          row.style.backgroundColor = idx % 2 === 0 ? "rgba(255,255,255,0.1)" : "transparent";
+
+          row.innerHTML = `
+            <td style="padding:8px 12px;">${stop.train_number || "NA"}</td>
+            <td style="padding:8px 12px;">${stop.station_code || "NA"}</td>
+            <td style="padding:8px 12px;">${stop.station_name || "NA"}</td>
+            <td style="padding:8px 12px;">${stop.scheduled_arrival || "NA"}</td>
+            <td style="padding:8px 12px;">${stop.scheduled_departure || "NA"}</td>
+          `;
+          scheduleTableBody.appendChild(row);
+        });
+
+        loadingMessage.style.display = "none";
+        scheduleTable.style.display = "table";
+      } catch (error) {
+        errorMessage.textContent = "Failed to fetch schedule. " + error.message;
+        errorMessage.style.display = "block";
+        loadingMessage.style.display = "none";
+      } finally {
+        getScheduleBtn.disabled = false;
+      }
+    });
+  })();
+
+</script>
+</body>
+</html>

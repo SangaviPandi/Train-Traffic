@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Control Room Menu</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1470&q=80') no-repeat center center fixed;
+    background-size: cover;
+    color: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem;
+    gap: 2rem;
+    background: rgba(0, 0, 0, 0.7);
+    max-width: 1200px;
+    margin: auto;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgb(0 0 0 / 0.7);
+  }
+
+  .section {
+    background: #1a1a1a;
+    border-radius: 10px;
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 280px;
+  }
+
+  .section h2 {
+    margin-bottom: 1rem;
+    font-weight: 700;
+    color: #aad4ff;
+    border-bottom: 2px solid #3b7ddd;
+    padding-bottom: 0.5rem;
+    width: 100%;
+    text-align: center;
+  }
+
+  .image-wrapper {
+    width: 100%;
+    max-height: 180px;
+    overflow: hidden;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .image-wrapper img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+
+  .buttons {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  button {
+    background-color: #3b7ddd;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    min-width: 80px;
+  }
+
+  button:hover {
+    background-color: #2a5bb8;
+  }
+
+  .logout-container {
+    text-align: center;
+    padding: 1rem 0 2rem 0;
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  .logout-button {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .logout-button:hover {
+    background-color: #b52c27;
+  }
+</style>
+</head>
+<body>
+  <h1 style="text-align:center; margin:1.5rem 0; color:#aad4ff;">Control Room Menu</h1>
+
+  <div class="container">
+    <section class="section" id="junctions">
+      <h2>Junctions</h2>
+      <div class="image-wrapper">
+        <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80" alt="Junction Image" />
+      </div>
+      <div class="buttons">
+        <button onclick="alert('Showing Junctions')">Show</button>
+        <button onclick="alert('Open Junction Details')">Open</button>
+        <button onclick="alert('Edit Junctions')">Edit</button>
+      </div>
+    </section>
+
+    <section class="section" id="schedule">
+      <h2>Schedule</h2>
+      <div class="image-wrapper">
+        <img src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=600&q=80" alt="Schedule Image" />
+      </div>
+      <div class="buttons">
+        <button onclick="alert('Show Schedule')">Show</button>
+        <button onclick="alert('Open Schedule')">Open</button>
+        <button onclick="alert('Modify Schedule')">Modify</button>
+      </div>
+    </section>
+
+    <section class="section" id="reschedule">
+      <h2>Reschedule</h2>
+      <div class="image-wrapper">
+        <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80" alt="Reschedule Image" />
+      </div>
+      <div class="buttons">
+        <button onclick="alert('Show Reschedule Options')">Show</button>
+        <button onclick="alert('Open Reschedule')">Open</button>
+        <button onclick="alert('Update Reschedule')">Update</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="logout-container">
+    <button class="logout-button" onclick="alert('Logging out')">Logout</button>
+  </div>
+</body>
+</html>
